@@ -5,7 +5,7 @@ organized into packages based on the functionality they provide. The packages ar
 
 ## Packages
 
-### [Files](files.md)
+### [Files](docs/files.md)
 
 The `files` package provides functions for reading, writing, and comparing text files. It includes the following
 functionalities:
@@ -15,11 +15,11 @@ functionalities:
 - Comparing two files and writing the differences to a third file
 - Reading a csv file and returning a slice of maps
 
-### [Google](google.md)
+### [Google](docs/google.md)
 
 The `google` package provides functions for interacting with Google services.
 
-### [Slices](slices.md)
+### [Slices](docs/slices.md)
 
 The `slices` package provides functions for manipulating slices. It includes the following functionalities:
 
