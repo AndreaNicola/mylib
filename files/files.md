@@ -83,6 +83,41 @@ func Difference(leftFile, rightFile, outputFile string) error
 ```go
 err := files.Difference("file1.txt", "file2.txt", "diff.txt")
 if err != nil {
-    log.Fatal(err)
+log.Fatal(err)
+}
+```
+
+### `ReadCsv`
+
+The `ReadCsv` function reads a CSV file and returns its contents as a slice of maps, where each map represents a row in
+the CSV file with column names as keys.
+
+#### Parameters
+
+- `filename`: The name of the CSV file to read.
+- `separator`: The rune used as a separator in the CSV file.
+
+#### Returns
+
+- `[]map[string]string`: A slice of maps, where each map represents a row in the CSV file.
+- `error`: An error if there is an issue opening or reading the CSV file.
+
+#### Example Usage
+
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+	"myproject/files"
+)
+
+func main() {
+	records, err := files.ReadCsv("testdata/files/test.csv", ',')
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(records)
 }
 ```

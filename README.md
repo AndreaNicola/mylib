@@ -13,6 +13,7 @@ functionalities:
 - Writing all lines to a file
 - Reading all lines from a file as a slice or map
 - Comparing two files and writing the differences to a third file
+- Reading a csv file and returning a slice of maps
 
 ### [Google](google.md)
 
