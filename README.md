@@ -18,7 +18,7 @@ functionalities:
 
 The `slices` package provides functions for manipulating slices. It includes the following functionalities:
 
-- Removing duplicates from a string slice
+- Difference between two strings slices
 
 ## License
 
