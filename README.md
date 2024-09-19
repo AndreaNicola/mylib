@@ -14,6 +14,10 @@ functionalities:
 - Reading all lines from a file as a slice or map
 - Comparing two files and writing the differences to a third file
 
+### [Google](google.md)
+
+The `google` package provides functions for interacting with Google services.
+
 ### [Slices](slices.md)
 
 The `slices` package provides functions for manipulating slices. It includes the following functionalities:
