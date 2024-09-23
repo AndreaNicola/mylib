@@ -75,6 +75,7 @@ func TestExtractMonthOfBirth(t *testing.T) {
 		{"RSSMRA85ZA001Z", "", true},
 		{"RSSMRA85YA001Z", "", true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.taxId, func(t *testing.T) {
 			gotMonth, err := extractMonthOfBirth(tt.taxId)
@@ -88,4 +89,49 @@ func TestExtractMonthOfBirth(t *testing.T) {
 		})
 	}
 
+}
+
+func TestExtractYearOfBirth(t *testing.T) {
+	tests := []struct {
+		taxId     string
+		wantYears []string
+		wantErr   bool
+	}{
+		{"RSSMRA85M01A001Z", []string{"1985"}, false},
+		{"RSSMRA00M01B001Z", []string{"2000"}, false},
+		{"RSSMRA00M01B101Z", []string{"1910", "2010"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.taxId, func(t *testing.T) {
+			gotYears, err := extractYearOfBirth(tt.taxId)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("extractYearOfBirth() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if len(gotYears) != len(tt.wantYears) {
+				t.Errorf("extractYearOfBirth() gotYears = %v, want %v", gotYears, tt.wantYears)
+			}
+		})
+	}
+
+}
+
+func TestCalculateControlDigit(t *testing.T) {
+	tests := []struct {
+		taxId     string
+		wantDigit string
+	}{
+		{"RSSMRA80A01H501", "U"},
+		{"NCLNDR85M23L565", "B"},
+		{"BNCLGU80A01A757", "T"},
+		{"VRDMRA80A41L750", "I"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.taxId, func(t *testing.T) {
+			gotDigit := calculateControlDigit(tt.taxId)
+			if gotDigit != tt.wantDigit {
+				t.Errorf("calculateControlDigit() gotDigit = %v, want %v", gotDigit, tt.wantDigit)
+			}
+		})
+	}
 }
