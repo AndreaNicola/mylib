@@ -108,7 +108,7 @@ func TestExtractYearOfBirth(t *testing.T) {
 	}{
 		{"RSSMRA85M01A001Z", []string{"1985"}, false},
 		{"RSSMRA00M01B001Z", []string{"2000"}, false},
-		{"RSSMRA00M01B101Z", []string{"1910", "2010"}, false},
+		{"RSSMRA10M01B101Z", []string{"1910", "2010"}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.taxId, func(t *testing.T) {
