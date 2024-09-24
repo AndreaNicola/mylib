@@ -33,8 +33,14 @@ func extractChars(taxId string) (consonants string, vowels string) {
 	return
 }
 
-func extractDayOfBirthAndSex(taxId string) (day int, isMale bool) {
+func extractDayOfBirthAndSex(taxId string) (day int, isMale bool, err error) {
 	taxIdPart, _ := strconv.ParseInt(taxId[9:11], 10, 64)
+
+	if taxIdPart < 1 || taxIdPart > 71 {
+		err = fmt.Errorf("day of birth not valid: %d", taxIdPart)
+		return
+	}
+
 	isMale = taxIdPart < 40
 	if taxIdPart > 40 {
 		day = int(taxIdPart - 40)

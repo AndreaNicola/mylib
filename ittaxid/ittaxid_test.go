@@ -31,22 +31,28 @@ func TestExtractDayOfBirthAndSex(t *testing.T) {
 		taxId      string
 		wantDay    int
 		wantIsMale bool
+		wantErr    bool
 	}{
-		{"RSSMRA85M01H501Z", 1, true},
-		{"rssmra85M23H501B", 23, true},
-		{"RSSMRA85M41H501Z", 1, false},
-		{"rssmra85M63H501B", 23, false},
-		{"RSSMRA85M42H501Z", 2, false},
+		{"RSSMRA85M01H501Z", 1, true, false},
+		{"rssmra85M23H501B", 23, true, false},
+		{"RSSMRA85M41H501Z", 1, false, false},
+		{"rssmra85M63H501B", 23, false, false},
+		{"RSSMRA85M42H501Z", 2, false, false},
+		{"RSSMRA85M72H501Z", 0, false, true},
+		{"RSSMRA85M00H501Z", 0, false, true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.taxId, func(t *testing.T) {
-			gotDay, gotIsMale := extractDayOfBirthAndSex(tt.taxId)
+			gotDay, gotIsMale, gotErr := extractDayOfBirthAndSex(tt.taxId)
 			if gotDay != tt.wantDay {
 				t.Errorf("extractDayOfBirthAndSex() gotDay = %v, want %v", gotDay, tt.wantDay)
 			}
 			if gotIsMale != tt.wantIsMale {
 				t.Errorf("extractDayOfBirthAndSex() gotIsMale = %v, want %v", gotIsMale, tt.wantIsMale)
+			}
+			if (gotErr != nil) != tt.wantErr {
+				t.Errorf("extractDayOfBirthAndSex() gotErr = %v, want %v", gotErr, tt.wantErr)
 			}
 		})
 	}
