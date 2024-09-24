@@ -19,6 +19,13 @@ functionalities:
 
 The `google` package provides functions for interacting with Google services.
 
+### [Italian Tax Id](docs/ittaxid.md)
+
+The `ittaxid` package provides functions for:
+
+- extraction of base information from an Italian tax id;
+- validation of an Italian tax id;
+
 ### [Luhn](docs/luhn.md)
 
 The `luhn` package provides functions for generating and validating Luhn numbers.
