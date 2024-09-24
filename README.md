@@ -19,6 +19,10 @@ functionalities:
 
 The `google` package provides functions for interacting with Google services.
 
+### [Luhn](docs/luhn.md)
+
+The `luhn` package provides functions for generating and validating Luhn numbers.
+
 ### [Slices](docs/slices.md)
 
 The `slices` package provides functions for manipulating slices. It includes the following functionalities:
