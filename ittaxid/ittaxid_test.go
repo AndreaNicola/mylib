@@ -1,6 +1,9 @@
 package ittaxid
 
-import "testing"
+import (
+	"maps"
+	"testing"
+)
 
 func TestExtractChars(t *testing.T) {
 	tests := []struct {
@@ -137,6 +140,32 @@ func TestCalculateControlDigit(t *testing.T) {
 			gotDigit := calculateControlDigit(tt.taxId)
 			if gotDigit != tt.wantDigit {
 				t.Errorf("calculateControlDigit() gotDigit = %v, want %v", gotDigit, tt.wantDigit)
+			}
+		})
+	}
+}
+
+func TestCalculateNameChars(t *testing.T) {
+	tests := []struct {
+		taxId      string
+		wantedInfo map[string]string
+	}{
+		{"RSSMRA85M23L565B", map[string]string{"sex": "M", "birthDate": "1985-08-23", "birthPlace": "L565"}},
+		{"RSSMRA80A01A757T", map[string]string{"sex": "M", "birthDate": "1980-01-01", "birthPlace": "A757"}},
+		{"RSSMRA18H24H501A", map[string]string{"sex": "M", "birthDate": "1918-06-24", "birthDate2": "2018-06-24", "birthPlace": "H501"}},
+		{"RSSMRA18H64H501A", map[string]string{"sex": "F", "birthDate": "1918-06-24", "birthDate2": "2018-06-24", "birthPlace": "H501"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.taxId, func(t *testing.T) {
+			gotInfo, err := ExtractInfo(tt.taxId)
+			if err != nil {
+				t.Errorf("ExtractInfo() error = %v", err)
+			}
+			if gotInfo == nil {
+				t.Errorf("ExtractInfo() gotInfo = %v, want %v", gotInfo, tt.wantedInfo)
+			}
+			if !maps.Equal(gotInfo, tt.wantedInfo) {
+				t.Errorf("ExtractInfo() gotInfo = %v, want %v", gotInfo, tt.wantedInfo)
 			}
 		})
 	}

@@ -301,3 +301,82 @@ func calculateControlDigit(s string) string {
 
 	return c
 }
+
+func calculateLastnameChars(name string) string {
+	lastnameChars := ""
+	consonants, vowels := extractChars(name)
+	if len(consonants) > 3 {
+		// add vowels to consonants
+		return consonants[0:3]
+	} else {
+		lastnameChars = consonants
+	}
+
+	if len(vowels) >= 3 {
+		lastnameChars += vowels[0:3]
+	} else {
+		lastnameChars += vowels
+	}
+
+	lastnameChars += "XXX"
+
+	return lastnameChars[0:3]
+
+}
+
+func calculateNameChars(name string) string {
+	nameChars := ""
+	consonants, vowels := extractChars(name)
+	if len(consonants) > 3 {
+		// add vowels to consonants
+		return string(consonants[0]) + consonants[2:4]
+	} else {
+		nameChars = consonants
+	}
+
+	if len(vowels) >= 3 {
+		nameChars += vowels[0:3]
+	} else {
+		nameChars += vowels
+	}
+
+	nameChars += "XXX"
+
+	return nameChars[0:3]
+
+}
+
+func ExtractInfo(taxId string) (map[string]string, error) {
+	info := make(map[string]string)
+
+	// extract day of birth
+	day, isMale, err := extractDayOfBirthAndSex(taxId)
+	if err != nil {
+		return nil, err
+	}
+	if isMale {
+		info["sex"] = "M"
+	} else {
+		info["sex"] = "F"
+	}
+
+	month, err := extractMonthOfBirth(taxId)
+	if err != nil {
+		return nil, err
+	}
+
+	years, err := extractYearOfBirth(taxId)
+	if err != nil {
+		return nil, err
+	}
+
+	info["birthDate"] = fmt.Sprintf("%s-%s-%s", years[0], month, fmt.Sprintf("%0*d", 2, day))
+	if len(years) > 1 {
+		info["birthDate2"] = fmt.Sprintf("%s-%s-%s", years[1], month, fmt.Sprintf("%0*d", 2, day))
+	}
+
+	info["birthPlace"] = taxId[11:15]
+
+	return info, nil
+
+}
