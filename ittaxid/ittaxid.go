@@ -3,6 +3,7 @@ package ittaxid
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -348,6 +349,10 @@ func calculateNameChars(name string) string {
 
 }
 
+// Info contains info extracted from a taxId
+// the field Sex is "M" for male or "F" for female
+// the field BirthDate is a slice of strings with the possible birth dates
+// the field BirthPlace is the birth place in italian "Codice Catastale" format
 type Info struct {
 	Sex        string
 	BirthDate  []string
@@ -360,6 +365,16 @@ func (i *Info) Equals(other *Info) bool {
 		i.BirthPlace == other.BirthPlace
 }
 
+// ExtractInfo extracts info from a taxId
+// taxId must be 16 characters long
+// the first 6 characters must be letters
+// the 7th and 8th characters must be numbers
+// the 9th character must be a letter
+// the 10th and 11th characters must be numbers
+// the 12th be a letters
+// the 13th, 14th and 15th characters must be numbers
+// the 16th character must be a letter
+// returns an Info struct with the extracted info or an error
 func ExtractInfo(taxId string) (*Info, error) {
 	info := &Info{}
 
@@ -395,7 +410,24 @@ func ExtractInfo(taxId string) (*Info, error) {
 
 }
 
+// Verify verifies the correctness of a taxId
+// lastname is the lastname of the person
+// name is the name of the person
+// sex is "M" or "F"
+// birthDate is the birth date in the format "YYYY-MM-DD"
+// taxId is the taxId to verify
 func Verify(lastname, name, sex, birthDate, taxId string) error {
+
+	taxId = strings.ToUpper(taxId)
+	taxIdRegexp, err := regexp.Compile("^[0A-Z]{3}[0A-Z]{3}[0-9]{2}[ABCDEHLMPRST][0-9]{2}[A-Z][0-9]{3}[A-Z]$")
+	if err != nil {
+		return fmt.Errorf("error compiling regexp: %v", err)
+	}
+
+	// check taxId using the regexp
+	if !taxIdRegexp.MatchString(taxId) {
+		return fmt.Errorf("taxId is not valid")
+	}
 
 	// calculate control digit
 	controlDigit := calculateControlDigit(taxId[0:15])
