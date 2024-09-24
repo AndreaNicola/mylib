@@ -1,7 +1,6 @@
 package ittaxid
 
 import (
-	"maps"
 	"testing"
 )
 
@@ -145,15 +144,15 @@ func TestCalculateControlDigit(t *testing.T) {
 	}
 }
 
-func TestCalculateNameChars(t *testing.T) {
+func TestExtractInfo(t *testing.T) {
 	tests := []struct {
 		taxId      string
-		wantedInfo map[string]string
+		wantedInfo *Info
 	}{
-		{"RSSMRA85M23L565B", map[string]string{"sex": "M", "birthDate": "1985-08-23", "birthPlace": "L565"}},
-		{"RSSMRA80A01A757T", map[string]string{"sex": "M", "birthDate": "1980-01-01", "birthPlace": "A757"}},
-		{"RSSMRA18H24H501A", map[string]string{"sex": "M", "birthDate": "1918-06-24", "birthDate2": "2018-06-24", "birthPlace": "H501"}},
-		{"RSSMRA18H64H501A", map[string]string{"sex": "F", "birthDate": "1918-06-24", "birthDate2": "2018-06-24", "birthPlace": "H501"}},
+		{"RSSMRA85M23L565B", &Info{Sex: "M", BirthDate: []string{"1985-08-23"}, BirthPlace: "L565"}},
+		{"RSSMRA80A01A757T", &Info{Sex: "M", BirthDate: []string{"1980-01-01"}, BirthPlace: "A757"}},
+		{"RSSMRA18H24H501A", &Info{Sex: "M", BirthDate: []string{"1918-06-24", "2018-06-24"}, BirthPlace: "H501"}},
+		{"RSSMRA18H64H501A", &Info{Sex: "F", BirthDate: []string{"1918-06-24", "2018-06-24"}, BirthPlace: "H501"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.taxId, func(t *testing.T) {
@@ -164,8 +163,42 @@ func TestCalculateNameChars(t *testing.T) {
 			if gotInfo == nil {
 				t.Errorf("ExtractInfo() gotInfo = %v, want %v", gotInfo, tt.wantedInfo)
 			}
-			if !maps.Equal(gotInfo, tt.wantedInfo) {
+
+			if !gotInfo.Equals(tt.wantedInfo) {
 				t.Errorf("ExtractInfo() gotInfo = %v, want %v", gotInfo, tt.wantedInfo)
+			}
+		})
+	}
+}
+
+func TestVerify(t *testing.T) {
+	tests := []struct {
+		lastname  string
+		name      string
+		sex       string
+		birthDate string
+		taxId     string
+		wantErr   bool
+	}{
+		{"Rossi", "Mario", "M", "1980-01-01", "RSSMRA80A01A061H", false},
+		{"Rossi", "Mario", "F", "1980-01-01", "RSSMRA80A01A061H", true},
+		{"Rossi", "Mario", "M", "1980-04-01", "RSSMRA80A01A061H", true},
+		{"Rossi", "Mario", "M", "1900-01-01", "BNCGAI00A41H501H", true},
+		{"Bianchi", "Gaia", "F", "1900-01-01", "BNCGAI00A41H501H", true},
+		{"Bianchi", "Gaia", "F", "2000-01-01", "BNCGAI00A41H501H", false},
+		{"Bianchi", "Gaia", "F", "2100-01-01", "BNCGAI00A41H501H", true},
+		{"Verdi", "Lucia", "F", "1905-01-01", "VRDLCU05A41L736X", false},
+		{"Verdi", "Lucia", "F", "2005-01-01", "VRDLCU05A41L736X", false},
+		{"Verdi", "Lucia", "F", "1905-01-01", "VRDLCU05A41L736X", false},
+		{"Verdi", "Lucia", "F", "2005-01-01", "VRDLCU05A41L736X", false},
+		{"Verdi", "Gianni", "M", "1904-01-01", "VRDGNN04A01L219N", true},
+		{"Verdi", "Gianni", "M", "2004-01-01", "VRDGNN04A01L219N", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.taxId, func(t *testing.T) {
+			err := Verify(tt.lastname, tt.name, tt.sex, tt.birthDate, tt.taxId)
+			if (err != nil) && !tt.wantErr {
+				t.Errorf("Verify() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

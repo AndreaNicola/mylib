@@ -2,6 +2,8 @@ package ittaxid
 
 import (
 	"fmt"
+	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -346,8 +348,20 @@ func calculateNameChars(name string) string {
 
 }
 
-func ExtractInfo(taxId string) (map[string]string, error) {
-	info := make(map[string]string)
+type Info struct {
+	Sex        string
+	BirthDate  []string
+	BirthPlace string
+}
+
+func (i *Info) Equals(other *Info) bool {
+	return i.Sex == other.Sex &&
+		reflect.DeepEqual(i.BirthDate, other.BirthDate) &&
+		i.BirthPlace == other.BirthPlace
+}
+
+func ExtractInfo(taxId string) (*Info, error) {
+	info := &Info{}
 
 	// extract day of birth
 	day, isMale, err := extractDayOfBirthAndSex(taxId)
@@ -355,9 +369,9 @@ func ExtractInfo(taxId string) (map[string]string, error) {
 		return nil, err
 	}
 	if isMale {
-		info["sex"] = "M"
+		info.Sex = "M"
 	} else {
-		info["sex"] = "F"
+		info.Sex = "F"
 	}
 
 	month, err := extractMonthOfBirth(taxId)
@@ -370,13 +384,51 @@ func ExtractInfo(taxId string) (map[string]string, error) {
 		return nil, err
 	}
 
-	info["birthDate"] = fmt.Sprintf("%s-%s-%s", years[0], month, fmt.Sprintf("%0*d", 2, day))
-	if len(years) > 1 {
-		info["birthDate2"] = fmt.Sprintf("%s-%s-%s", years[1], month, fmt.Sprintf("%0*d", 2, day))
+	info.BirthDate = make([]string, len(years))
+	for i, year := range years {
+		info.BirthDate[i] = fmt.Sprintf("%s-%s-%s", year, month, fmt.Sprintf("%0*d", 2, day))
 	}
 
-	info["birthPlace"] = taxId[11:15]
+	info.BirthPlace = taxId[11:15]
 
 	return info, nil
+
+}
+
+func Verify(lastname, name, sex, birthDate, taxId string) error {
+
+	// calculate control digit
+	controlDigit := calculateControlDigit(taxId[0:15])
+	if controlDigit != taxId[15:] {
+		return fmt.Errorf("control digit is not valid")
+	}
+
+	// calculate lastname chars
+	lastnameChars := calculateLastnameChars(lastname)
+	if lastnameChars != taxId[0:3] {
+		return fmt.Errorf("lastname chars are not valid")
+	}
+
+	// calculate name chars
+	nameChars := calculateNameChars(name)
+	if nameChars != taxId[3:6] {
+		return fmt.Errorf("name chars are not valid")
+	}
+
+	// extract info
+	info, err := ExtractInfo(taxId)
+	if err != nil {
+		return fmt.Errorf("error extracting info from taxId: %v", err)
+	}
+
+	if !slices.Contains(info.BirthDate, birthDate) {
+		return fmt.Errorf("birth date is not valid")
+	}
+
+	if sex != info.Sex {
+		return fmt.Errorf("sex is not valid")
+	}
+
+	return nil
 
 }
