@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func ReadCsv(filename string, separator rune) ([]map[string]string, error) {
+func ReadCsv(filename string, separator rune, lazyQuotes bool) ([]map[string]string, error) {
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -16,6 +16,7 @@ func ReadCsv(filename string, separator rune) ([]map[string]string, error) {
 
 	reader := csv.NewReader(file)
 	reader.Comma = separator
+	reader.LazyQuotes = lazyQuotes
 
 	records, err := reader.ReadAll()
 	if err != nil {
